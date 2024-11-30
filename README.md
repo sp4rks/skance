@@ -1,5 +1,7 @@
 # Skance
-Next Gen Identity. Cloud native. Cloud agnostic.
+<img src="assets/skance.png" alt="Skance Logo" width="200" />
+
+### Next Gen Identity. Cloud native. Cloud agnostic.
 
 ## Server Configuration
 Server configuration is managed exclusively via environment variables, and is stored in memory at runtime. A default configuration is maintained in `/src/config/definitions.js`, allowing a quickstart instance of Skance to run with no manual config.
