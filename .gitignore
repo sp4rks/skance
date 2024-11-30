@@ -1,0 +1,45 @@
+# Skance files
+db.json
+
+# Coverage directory
+coverage/
+
+# Dependency directories
+node_modules/
+deno_dir/
+
+# Compiled output
+dist/
+build/
+
+# Editor-specific files
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs and debugging files
+*.log
+logs/
+
+# Environment files
+.env
+.env.*
+
+# Cache files
+.cache/
+*.tmp
+
+# Miscellaneous
+*.swp
+*.bak
+*.orig
+*.rej
+
+# Coverage directory
+coverage/
+
+# Deno lock files
+deno.lock
