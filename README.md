@@ -1,5 +1,5 @@
 # Skance
-<img src="assets/skance.png" alt="Skance Logo" width="200" />
+<img src="assets/skance.png" alt="Skance Logo" width="300" />
 
 ### Next Gen Identity. Cloud native. Cloud agnostic.
 
