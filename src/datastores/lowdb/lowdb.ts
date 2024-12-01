@@ -3,20 +3,20 @@ import { JSONFile } from "lowdb/node";
 
 import { config } from "@skance/config/config.ts";
 import { Datastore } from "@skance/datastores/datastore.d.ts";
-import { Tenant } from "@skance/components/tenant/tenant.d.ts";
-import { App } from "@skance/components/app/app.d.ts";
+import { Tenant, TenantAdmin } from "@skance/core/tenant/tenantSchema.ts";
 import { ConflictError } from "@skance/utilities/errors.ts";
 
-type Schema = {
+type LowSchema = {
   tenants: Record<string, Tenant>;
+  [key: `${string}:tenantAdmins`]: TenantAdmin[];
 }
 
 export class LowDBStore implements Datastore {
-  private db: Low<Schema>;
+  private db: Low<LowSchema>;
 
   constructor() {
-    const defaultData: Schema = { tenants: {} };
-    this.db = new Low<Schema>(new JSONFile<Schema>(config.dbLowDbPath), defaultData);
+    const defaultData: LowSchema = { tenants: {} };
+    this.db = new Low<LowSchema>(new JSONFile<LowSchema>(config.dbLowDbPath), defaultData);
   }
 
   async createTenant(tenant: Tenant): Promise<Tenant> {
@@ -25,9 +25,7 @@ export class LowDBStore implements Datastore {
     if (this.db.data.tenants[tenant.id]) {
       throw new ConflictError(`Tenant with shortId ${tenant.id} already exists`);
     }
-
-    tenant.apps = tenant.apps || [];
-    
+  
     this.db.data.tenants[tenant.id] = tenant;
 
     await this.db.write();
@@ -44,17 +42,12 @@ export class LowDBStore implements Datastore {
     return this.db.data.tenants[skID];
   }
 
-  async createApp(tenantId: string, app: App): Promise<App> {
+  async createTenantAdmin(tenantId: string, tenantAdmin: TenantAdmin): Promise<TenantAdmin> {
     await this.db.read();
     
-    const tenant = this.db.data.tenants[tenantId];
-    if (!tenant) {
-      throw new Error(`Tenant ${tenantId} not found`);
-    }
-
-    tenant.apps.push(app);
+    this.db.data[`${tenantId}:tenantAdmins`] = [tenantAdmin];
     
     await this.db.write();
-    return app;
+    return tenantAdmin;
   }
 }

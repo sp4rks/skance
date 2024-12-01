@@ -1,29 +1,46 @@
-import { Hono } from "jsr:@hono/hono";
+import { OpenAPIHono } from '@hono/zod-openapi';
+import { apiReference } from '@scalar/hono-api-reference'
 
 import { config } from "@skance/config/config.ts";
 import { httpLog } from '@skance/middleware/logging.ts';
-import { tenants } from '@skance/routes/admin/tenants/tenants.ts';
-import { root as adminRoot } from '@skance/routes/admin/index.ts';
-//import { root as authRoot } from '@skance/routes/auth/index.ts';
-//import { wellKnown } from '@skance/routes/auth/.well_known/wellKnown.ts';
-//import { token } from '@skance/routes/auth/token/token.ts';
+import { tenantsRoute } from '@skance/routes/admin/tenants/tenantsRoute.ts';
 
 export const VERSION = 'v1';
 
 console.log(`Starting skance ${VERSION}...`);
-export const skance = new Hono().basePath(`/${VERSION}`);
+export const skance = new OpenAPIHono().basePath(`/${VERSION}`);
+// @ts-ignore Works fine; seems to be an issue in zod-openapi
 skance.use(httpLog);
 
 // Admin routes
-skance.route('/admin', adminRoot);
-skance.route('/admin/tenants', tenants);
+//skance.route('/admin', authRoot);
+skance.route('/admin/tenants', tenantsRoute);
 
-// Auth routes
-//skance.route('/:tenantId/auth', authRoot);
-//skance.route('/:tenantId/auth/token', token);
-//skance.route('/:tenantId/auth/.well-known/openid-configuration', wellKnown);
+skance.doc('/admin/openapi.json', (c) => ({
+  openapi: '3.0.0',
+  info: {
+    version: '1.0.0',
+    title: 'Skance AdminAPI',
+  },
+  servers: [
+    {
+      url: new URL(c.req.url).origin,
+      description: 'Current environment',
+    },
+  ],
+}))
+
+skance.get(
+  '/admin/docs',
+  apiReference({
+    spec: {
+      url: `/${VERSION}/admin/openapi.json`,
+    },
+  }),
+)
 
 Deno.serve({
   port: Number(config.listenPort),
-  hostname: config.listenAddress
-}, skance.fetch);
+  hostname: config.listenAddress,
+// @ts-ignore Works fine; seems to be an issue in zod-openapi
+}, (req) => skance.fetch(req));
