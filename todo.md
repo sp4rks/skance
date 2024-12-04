@@ -1,0 +1,5 @@
+- [x] Add openapi docs
+- [ ] Move back to middleware based validation
+- [ ] Sort out logging
+- [ ] Write some tests
+- [ ] Add password hashing for tenant credentials

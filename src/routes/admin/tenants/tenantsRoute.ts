@@ -1,3 +1,4 @@
+import { Context } from '@hono/hono';
 import { z, OpenAPIHono, createRoute } from '@hono/zod-openapi';
 
 import { TenantSchema, TenantAdminSchema } from "@skance/core/tenant/tenantSchema.ts";
@@ -26,6 +27,14 @@ const tenantOutput = TenantSchema.pick({
   //tenantAdmins: true
 });
 
+const tenantsOutput = z.record(
+  z.string().openapi({
+    description: "Tenant ID",
+    example: "aAbBcC"
+  }),
+  tenantOutput
+);
+
 // Define routes
 export const getTenantsRoute = createRoute({
   summary: 'List all tenants',
@@ -36,7 +45,7 @@ export const getTenantsRoute = createRoute({
     200: {
       content: {
         'application/json': {
-          schema: z.record(tenantOutput)
+          schema: tenantsOutput
         }
       },
       description: 'A list of all tenants'
@@ -44,7 +53,7 @@ export const getTenantsRoute = createRoute({
   }
 });
 
-tenantsRoute.openapi(getTenantsRoute, async (c) => {
+tenantsRoute.openapi(getTenantsRoute, async (c: Context) => {
   const tenants = await readTenants();
   const validatedTenants = z.record(tenantOutput).parse(tenants);
   return c.json(validatedTenants);
@@ -133,3 +142,4 @@ tenantsRoute.openapi(getTenantRoute, async (c) => {
   const validatedTenant = tenantOutput.parse(tenant);
   return c.json(validatedTenant);
 });
+
